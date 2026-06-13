@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>My Cart – SnackHub</title>
+  <meta name="description" content="View your shopping cart and proceed to checkout on SnackHub."/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" placeholder="Search snacks…" onkeydown="if(event.key==='Enter')window.location='products.html?q='+this.value"/>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap active">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="cart-wrap">
+  <h1>🛒 My Cart</h1>
+  <div id="cart-content"></div>
+</div>
+
+<footer>
+  <div class="footer-bottom" style="border-top:none;padding-top:0;">
+    <span>© 2025 SnackHub</span><span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script src="js/products.js"></script>
+<script>
+  function renderCart() {
+    updateCartBadge();
+    const cart = getCart();
+    const container = document.getElementById('cart-content');
+
+    if (cart.length === 0) {
+      container.innerHTML = `
+        <div class="cart-empty">
+          <div class="empty-icon">🛒</div>
+          <h2 style="margin-bottom:.5rem;">Your cart is empty</h2>
+          <p style="color:var(--muted);margin-bottom:1.5rem;">Looks like you haven't added anything yet!</p>
+          <a href="products.html" class="btn btn-primary">Start Shopping</a>
+        </div>`;
+      return;
+    }
+
+    let subtotal = 0;
+    let rows = '';
+    cart.forEach(item => {
+      const p = PRODUCTS.find(x => x.id === item.id);
+      const thumb = p && p.image
+        ? `<img src="${p.image}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><span style="display:none;font-size:1.8rem;">${p ? p.emoji : '🍫'}</span>`
+        : `<span style="font-size:1.8rem;">${p ? p.emoji : '🍫'}</span>`;
+      const lineTotal = item.price * item.qty;
+      subtotal += lineTotal;
+      rows += `
+        <tr>
+          <td>
+            <div class="cart-product-info">
+              <div class="cart-thumb">${thumb}</div>
+              <div>
+                <div class="cart-name">${item.name}</div>
+                <div class="cart-cat">${p ? p.category : ''}</div>
+              </div>
+            </div>
+          </td>
+          <td><strong>₹${item.price}</strong></td>
+          <td>
+            <div class="qty-ctrl">
+              <button onclick="changeQty(${item.id},-1)">−</button>
+              <span>${item.qty}</span>
+              <button onclick="changeQty(${item.id},1)">+</button>
+            </div>
+          </td>
+          <td><strong>₹${lineTotal}</strong></td>
+          <td><button class="remove-btn" onclick="removeItem(${item.id})" title="Remove">🗑️</button></td>
+        </tr>`;
+    });
+
+    const delivery = subtotal >= 199 ? 0 : 30;
+    const total = subtotal + delivery;
+
+    container.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="cart-summary">
+        <div class="summary-row"><span>Subtotal</span><span>₹${subtotal}</span></div>
+        <div class="summary-row">
+          <span>Delivery</span>
+          <span>${delivery === 0 ? '<span style="color:#22c55e;">FREE ✓</span>' : '₹' + delivery}</span>
+        </div>
+        ${delivery > 0 ? `<div style="font-size:.78rem;color:var(--muted);margin:.3rem 0;">Add ₹${199 - subtotal} more for free delivery</div>` : ''}
+        <div class="summary-row total"><span>Total</span><span style="color:var(--accent);">₹${total}</span></div>
+        <div style="display:flex;gap:1rem;margin-top:1.2rem;flex-wrap:wrap;">
+          <a href="checkout.html" class="btn btn-primary" style="flex:2;">Proceed to Checkout →</a>
+          <a href="products.html" class="btn btn-outline" style="flex:1;">Continue Shopping</a>
+        </div>
+      </div>`;
+  }
+
+  function changeQty(id, delta) {
+    const cart = getCart();
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) cart.splice(cart.indexOf(item), 1);
+    saveCart(cart);
+    renderCart();
+  }
+
+  function removeItem(id) {
+    const cart = getCart().filter(i => i.id !== id);
+    saveCart(cart);
+    showToast('Item removed from cart');
+    renderCart();
+  }
+
+  renderCart();
+</script>
+</body>
+</html>

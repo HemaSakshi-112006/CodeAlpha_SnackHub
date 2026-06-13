@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Products – SnackHub</title>
+  <meta name="description" content="Browse all snacks at SnackHub – chocolates, cookies, drinks and chips." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+      <div class="nav-search">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Search snacks…" oninput="filterProducts()" />
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html" class="active">Products</a></li>
+        <li>
+          <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+            <span class="cart-badge" id="cart-badge">0</span>
+          </a>
+        </li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>All Products</h1>
+    <p>Fresh snacks, best prices — delivered fast</p>
+  </div>
+
+  <div class="section" style="padding-top:1rem;">
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('Chocolates',this)">🍫 Chocolates</button>
+      <button class="filter-btn" onclick="setFilter('Cookies',this)">🍪 Cookies</button>
+      <button class="filter-btn" onclick="setFilter('Drinks',this)">🥤 Drinks</button>
+      <button class="filter-btn" onclick="setFilter('Chips',this)">🍟 Chips</button>
+
+      <div class="search-wrap">
+        <span>🔍</span>
+        <input type="text" id="search-inline" placeholder="Search…" oninput="filterProducts()" />
+      </div>
+    </div>
+
+    <div class="products-grid" id="products-grid"></div>
+
+    <p id="no-results" style="display:none;text-align:center;color:var(--muted);padding:3rem;">
+      No products found. Try a different search.
+    </p>
+  </div>
+
+  <footer>
+    <div class="footer-bottom" style="border-top:none;padding-top:0;">
+      <span>© 2025 SnackHub</span><span>Made with ❤️ in India</span>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+
+</body>
+
+</html>

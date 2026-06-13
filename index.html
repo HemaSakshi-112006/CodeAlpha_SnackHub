@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>SnackHub – Order Your Favorite Snacks</title>
+  <meta name="description" content="SnackHub – India's favorite online snack store. Browse chocolates, cookies, drinks and chips at best prices."/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" id="hero-search" placeholder="Search snacks…" onkeydown="if(event.key==='Enter')window.location='products.html?q='+this.value"/>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <button class="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <span class="hero-tag">🚀 Free Delivery on Orders above ₹199</span>
+    <h1>Order Your<br/><span>Favorite Snacks</span><br/>Delivered Fast</h1>
+    <p>Chocolates, cookies, chips & drinks — all at unbeatable prices. Fresh, crunchy, and delivered to your door.</p>
+    <div class="hero-btns">
+      <a href="products.html" class="btn btn-primary">🛍️ Shop Now</a>
+      <a href="products.html?cat=Chocolates" class="btn btn-outline">Explore Chocolates</a>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="images/hero.png" alt="Snacks banner"/>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section" style="padding-top:2rem;">
+  <div class="section-header">
+    <h2>Shop by Category</h2>
+    <p>Find exactly what you're craving</p>
+  </div>
+  <div class="categories-grid">
+    <a href="products.html?cat=Chocolates" class="cat-card">
+      <div class="cat-icon">🍫</div>
+      <h3>Chocolates</h3>
+      <p>3 products</p>
+    </a>
+    <a href="products.html?cat=Cookies" class="cat-card">
+      <div class="cat-icon">🍪</div>
+      <h3>Cookies</h3>
+      <p>3 products</p>
+    </a>
+    <a href="products.html?cat=Drinks" class="cat-card">
+      <div class="cat-icon">🥤</div>
+      <h3>Drinks</h3>
+      <p>3 products</p>
+    </a>
+    <a href="products.html?cat=Chips" class="cat-card">
+      <div class="cat-icon">🍟</div>
+      <h3>Chips</h3>
+      <p>3 products</p>
+    </a>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section" style="padding-top:1rem;">
+  <div class="section-header">
+    <h2>Featured Products</h2>
+    <p>Handpicked bestsellers just for you</p>
+  </div>
+  <div class="products-grid" id="featured-grid"></div>
+  <div style="text-align:center;margin-top:2.5rem;">
+    <a href="products.html" class="btn btn-outline">View All Products →</a>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section" style="background:var(--surface);">
+  <div class="section-header"><h2>Why SnackHub?</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+    <div class="cat-card"><div class="cat-icon">⚡</div><h3>Fast Delivery</h3><p>Get your snacks in under 30 mins</p></div>
+    <div class="cat-card"><div class="cat-icon">💰</div><h3>Best Prices</h3><p>Lowest prices guaranteed, always</p></div>
+    <div class="cat-card"><div class="cat-icon">🌟</div><h3>Fresh Stock</h3><p>Only the freshest snacks stocked</p></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#ff6b00,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🍫 SnackHub</div>
+      <p>Your one-stop destination for all things crunchy, sweet, and delicious. Order snacks online with ease.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">My Cart</a></li>
+        <li><a href="login.html">Login</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Categories</h4>
+      <ul>
+        <li><a href="products.html?cat=Chocolates">🍫 Chocolates</a></li>
+        <li><a href="products.html?cat=Cookies">🍪 Cookies</a></li>
+        <li><a href="products.html?cat=Drinks">🥤 Drinks</a></li>
+        <li><a href="products.html?cat=Chips">🍟 Chips</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 SnackHub. All rights reserved.</span>
+    <span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script src="js/products.js"></script>
+<script>
+  // Update cart badge
+  updateCartBadge();
+
+  // Render featured products (ids 1,4,7,10,2,11)
+  const featuredIds = [1,4,7,10,2,11];
+  const grid = document.getElementById('featured-grid');
+  featuredIds.forEach(fid => {
+    const p = PRODUCTS.find(x => x.id === fid);
+    if (!p) return;
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="product-thumb" onclick="window.location='product-detail.html?id=${p.id}'">
+        ${getProductImage(p,'small')}
+      </div>
+      <div class="product-info">
+        <div class="product-cat-tag">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-rating">${renderStars(p.rating)} <span class="rating-num">(${p.reviews})</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.3rem;">
+          <div class="product-price">₹${p.price}</div>
+          <button class="add-btn" style="width:auto;padding:.5rem 1rem;" onclick="addToCart(${p.id})">+ Add</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  function toggleMobileMenu(){
+    const links = document.querySelector('.nav-links');
+    if(links) links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  }
+</script>
+</body>
+</html>

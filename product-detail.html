@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Product Details – SnackHub</title>
+  <meta name="description" content="View product details and add to cart on SnackHub."/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" placeholder="Search snacks…" onkeydown="if(event.key==='Enter')window.location='products.html?q='+this.value"/>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div id="detail-container"></div>
+
+<!-- Related Products -->
+<div class="section" style="padding-top:0;" id="related-section" style="display:none;">
+  <div class="section-header"><h2>You May Also Like</h2></div>
+  <div class="products-grid" id="related-grid"></div>
+</div>
+
+<footer>
+  <div class="footer-bottom" style="border-top:none;padding-top:0;">
+    <span>© 2025 SnackHub</span><span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script src="js/products.js"></script>
+<script>
+  updateCartBadge();
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id'); // Keep as string — MongoDB _id is not a number
+
+  (async () => {
+    // Load products from backend first, then render
+    try {
+      const res = await fetch('http://localhost:5000/api/products');
+      PRODUCTS = await res.json();
+    } catch (e) {
+      document.getElementById('detail-container').innerHTML =
+        '<div style="text-align:center;padding:5rem;color:var(--muted)"><div style="font-size:3rem">⚠️</div><h2>Could not load product</h2><p>Make sure the backend server is running.</p><a href="products.html" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">Back to Products</a></div>';
+      return;
+    }
+
+    updateCartBadge();
+    const product = PRODUCTS.find(p => p._id === id);
+
+  if (!product) {
+    document.getElementById('detail-container').innerHTML =
+      '<div style="text-align:center;padding:5rem;color:var(--muted)"><div style="font-size:3rem">😕</div><h2>Product not found</h2><a href="products.html" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">Back to Products</a></div>';
+  } else {
+    let qty = 1;
+
+    const imgHTML = product.image
+      ? `<img src="${product.image}" alt="${product.name}" style="max-width:100%;max-height:340px;object-fit:contain;padding:1.5rem;" onerror="this.style.display='none';document.getElementById('emoji-fallback').style.display='flex'"/>
+         <div id="emoji-fallback" class="emoji-thumb large" style="display:none;background:${product.gradient||'#333'};height:340px;">${product.emoji}</div>`
+      : `<div class="emoji-thumb large" style="background:${product.gradient||'#333'};height:340px;">${product.emoji}</div>`;
+
+    document.getElementById('detail-container').innerHTML = `
+      <div class="detail-wrap">
+        <div class="detail-img-box">${imgHTML}</div>
+        <div class="detail-info">
+          <p class="breadcrumb"><a href="index.html">Home</a> › <a href="products.html">Products</a> › <a href="products.html?cat=${product.category}">${product.category}</a> › ${product.name}</p>
+          <span class="product-cat-tag" style="font-size:.8rem;">${product.category}</span>
+          <h1 style="margin-top:.4rem;">${product.name}</h1>
+          <div class="product-rating" style="margin:.6rem 0;">${renderStars(product.rating)} <span class="rating-num" style="font-size:.85rem;">(${product.reviews} reviews)</span></div>
+          <div class="detail-price">₹${product.price}</div>
+          <p class="detail-desc">${product.description}</p>
+          <div class="qty-wrap">
+            <span style="font-size:.88rem;color:var(--muted);font-weight:600;">QTY:</span>
+            <button class="qty-btn" id="dec-btn" onclick="changeQty(-1)">−</button>
+            <span class="qty-val" id="qty-display">1</span>
+            <button class="qty-btn" onclick="changeQty(1)">+</button>
+          </div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <button class="btn btn-primary" style="flex:1;" onclick="handleAddToCart()">🛒 Add to Cart</button>
+            <a href="cart.html" class="btn btn-outline" style="flex:1;">View Cart</a>
+          </div>
+          <div style="margin-top:1.5rem;padding:1rem;background:var(--surface);border-radius:10px;border:1px solid var(--border);">
+            <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+              <span style="font-size:.82rem;color:var(--muted);">⚡ Fast Delivery</span>
+              <span style="font-size:.82rem;color:var(--muted);">✅ Fresh Stock</span>
+              <span style="font-size:.82rem;color:var(--muted);">🔄 Easy Returns</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    function changeQty(delta) {
+      qty = Math.max(1, qty + delta);
+      document.getElementById('qty-display').textContent = qty;
+    }
+
+    function handleAddToCart() {
+      for (let i = 0; i < qty; i++) addToCart(product._id);
+    }
+
+    // Related products (same category, exclude current)
+    const related = PRODUCTS.filter(p => p.category === product.category && p._id !== product._id).slice(0, 4);
+    const relGrid = document.getElementById('related-grid');
+    related.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <div class="product-thumb" onclick="window.location='product-detail.html?id=${p._id}'" style="cursor:pointer;">
+          ${getProductImage(p, 'small')}
+        </div>
+        <div class="product-info">
+          <div class="product-cat-tag">${p.category}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-rating">${renderStars(p.rating)}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.4rem;">
+            <div class="product-price">₹${p.price}</div>
+            <button class="add-btn" style="width:auto;padding:.5rem 1rem;" onclick="addToCart(${p.id})">+ Add</button>
+          </div>
+        </div>`;
+      relGrid.appendChild(card);
+    });
+  }
+  })();
+</script>
+</body>
+</html>

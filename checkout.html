@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Checkout – SnackHub</title>
+  <meta name="description" content="Complete your snack order on SnackHub."/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="checkout-wrap">
+  <div id="checkout-view">
+    <h1>📦 Checkout</h1>
+
+    <!-- Order Summary -->
+    <div class="order-summary-mini" id="order-summary"></div>
+
+    <!-- Form -->
+    <form id="checkout-form" onsubmit="placeOrder(event)">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="co-name" placeholder="e.g. Hema Sharma" required/>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="co-phone" placeholder="e.g. 9876543210" pattern="[0-9]{10}" required/>
+      </div>
+      <div class="form-group">
+        <label for="email">Email (optional)</label>
+        <input type="email" id="co-email" placeholder="e.g. hema@email.com"/>
+      </div>
+      <div class="form-group">
+        <label for="address">Delivery Address</label>
+        <textarea id="co-address" placeholder="House No., Street, Area, City, Pincode" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <div style="display:flex;gap:.8rem;margin-top:.5rem;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">
+            <input type="radio" name="payment" value="cod" checked/> 💵 Cash on Delivery
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">
+            <input type="radio" name="payment" value="upi"/> 📱 UPI
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">
+            <input type="radio" name="payment" value="card"/> 💳 Card
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:1rem;">Place Order 🚀</button>
+    </form>
+  </div>
+
+  <!-- Success State (hidden) -->
+  <div id="success-view" style="display:none;">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <h1 style="font-size:2rem;margin-bottom:.5rem;">Order Placed Successfully!</h1>
+      <p style="color:var(--muted);margin-bottom:.5rem;">Thank you, <strong id="success-name"></strong>!</p>
+      <p style="color:var(--muted);margin-bottom:2rem;">Your snacks are on their way. Expected delivery in <strong style="color:var(--accent);">30–45 minutes</strong>. 🛵</p>
+      <div id="order-receipt" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:left;margin-bottom:2rem;"></div>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="index.html" class="btn btn-primary">🏠 Back to Home</a>
+        <a href="products.html" class="btn btn-outline">Shop More</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-bottom" style="border-top:none;padding-top:0;">
+    <span>© 2025 SnackHub</span><span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script src="js/products.js"></script>
+<script>
+  updateCartBadge();
+
+  // Build order summary
+  function buildSummary() {
+    const cart = getCart();
+    const el = document.getElementById('order-summary');
+    if (cart.length === 0) {
+      el.innerHTML = '<p style="color:var(--muted);font-size:.9rem;">Your cart is empty. <a href="products.html" style="color:var(--accent);">Add items →</a></p>';
+      return;
+    }
+    let subtotal = 0;
+    let html = '<h3>Order Summary</h3>';
+    cart.forEach(item => {
+      subtotal += item.price * item.qty;
+      html += `<div class="mini-item"><span>${item.name} × ${item.qty}</span><span>₹${item.price * item.qty}</span></div>`;
+    });
+    const delivery = subtotal >= 199 ? 0 : 30;
+    html += `<div class="mini-item"><span>Delivery</span><span>${delivery === 0 ? 'FREE' : '₹' + delivery}</span></div>`;
+    html += `<div class="mini-total"><span>Total</span><span style="color:var(--accent);">₹${subtotal + delivery}</span></div>`;
+    el.innerHTML = html;
+  }
+
+  buildSummary();
+
+  function placeOrder(e) {
+    e.preventDefault();
+    const name    = document.getElementById('co-name').value.trim();
+    const phone   = document.getElementById('co-phone').value.trim();
+    const email   = document.getElementById('co-email').value.trim();
+    const address = document.getElementById('co-address').value.trim();
+    const payment = document.querySelector('input[name="payment"]:checked').value;
+    const cart    = getCart();
+    if (cart.length === 0) { alert('Your cart is empty!'); return; }
+
+    // Build order object
+    const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    const delivery = subtotal >= 199 ? 0 : 30;
+    const order = { name, phone, email, address, payment, items: cart, subtotal, delivery, total: subtotal + delivery, date: new Date().toLocaleString('en-IN') };
+
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('snackhub_orders') || '[]');
+    orders.push(order);
+    localStorage.setItem('snackhub_orders', JSON.stringify(orders));
+
+    // Clear cart
+    localStorage.removeItem('snackhub_cart');
+
+    // Show success
+    document.getElementById('checkout-view').style.display = 'none';
+    document.getElementById('success-view').style.display = 'block';
+    document.getElementById('success-name').textContent = name;
+
+    let receiptHTML = `
+      <div style="margin-bottom:.8rem;font-size:.82rem;color:var(--muted);">Order placed on ${order.date}</div>
+      ${cart.map(i=>`<div class="mini-item"><span>${i.name} × ${i.qty}</span><span>₹${i.price*i.qty}</span></div>`).join('')}
+      <div class="mini-item"><span>Delivery</span><span>${delivery===0?'FREE':'₹'+delivery}</span></div>
+      <div class="mini-total"><span>Total Paid</span><span style="color:var(--accent);">₹${order.total}</span></div>
+      <div style="margin-top:1rem;font-size:.82rem;color:var(--muted);">
+        <div>📞 ${phone}</div>
+        <div>📍 ${address}</div>
+        <div>💳 ${payment.toUpperCase()}</div>
+      </div>`;
+    document.getElementById('order-receipt').innerHTML = receiptHTML;
+    updateCartBadge();
+  }
+</script>
+</body>
+</html>

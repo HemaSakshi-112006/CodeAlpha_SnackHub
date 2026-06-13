@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Login – SnackHub</title>
+  <meta name="description" content="Login or create an account on SnackHub."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .tab-bar{display:flex;background:var(--surface);border-radius:50px;padding:4px;margin-bottom:1.8rem;}
+    .tab-btn{flex:1;padding:.6rem;border:none;background:none;color:var(--muted);font-family:inherit;font-size:.9rem;font-weight:600;border-radius:50px;cursor:pointer;transition:.2s;}
+    .tab-btn.active{background:var(--accent);color:#fff;}
+    .divider{display:flex;align-items:center;gap:.8rem;margin:1.2rem 0;color:var(--muted);font-size:.8rem;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .social-btn{width:100%;padding:.7rem;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-family:inherit;font-size:.88rem;font-weight:500;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:.6rem;}
+    .social-btn:hover{border-color:var(--accent);}
+    .error-msg{color:#ff4444;font-size:.82rem;margin-top:.3rem;display:none;}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html" class="active">Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">🍫 SnackHub</div>
+    <p class="auth-sub">Your favorite snacks, delivered fast</p>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="login-tab" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="signup-tab" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="you@email.com" required/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter your password" required/>
+        <span class="error-msg" id="login-error">Invalid email or password.</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1.2rem;">
+        <a href="#" style="font-size:.82rem;color:var(--accent);">Forgot Password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login →</button>
+
+      <div class="divider">or continue with</div>
+      <button type="button" class="social-btn" onclick="socialLogin('Google')">
+        <span style="font-size:1.1rem;">🔵</span> Continue with Google
+      </button>
+      <button type="button" class="social-btn" onclick="socialLogin('Facebook')">
+        <span style="font-size:1.1rem;">🔷</span> Continue with Facebook
+      </button>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signup-form" style="display:none;" onsubmit="handleSignup(event)">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="su-name" placeholder="Your full name" required/>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="su-email" placeholder="you@email.com" required/>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="su-phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="su-pass" placeholder="Min 6 characters" minlength="6" required/>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="su-pass2" placeholder="Re-enter password" required/>
+        <span class="error-msg" id="signup-error">Passwords do not match.</span>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Create Account →</button>
+    </form>
+
+    <!-- Logged in state -->
+    <div id="logged-in-view" style="display:none;text-align:center;padding:1rem 0;">
+      <div style="font-size:3rem;margin-bottom:.8rem;">👋</div>
+      <h2 style="margin-bottom:.4rem;">Welcome back, <span id="user-display-name"></span>!</h2>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;">You are logged in to SnackHub</p>
+      <div style="display:flex;gap:.8rem;flex-direction:column;">
+        <a href="products.html" class="btn btn-primary">🛍️ Continue Shopping</a>
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/products.js"></script>
+<script>
+  updateCartBadge();
+
+  // Check if already logged in
+  const loggedUser = JSON.parse(localStorage.getItem('snackhub_user') || 'null');
+  if (loggedUser) {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('signup-form').style.display = 'none';
+    document.querySelector('.tab-bar').style.display = 'none';
+    document.getElementById('logged-in-view').style.display = 'block';
+    document.getElementById('user-display-name').textContent = loggedUser.name || loggedUser.email;
+  }
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('login-tab').classList.toggle('active', isLogin);
+    document.getElementById('signup-tab').classList.toggle('active', !isLogin);
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    const users = JSON.parse(localStorage.getItem('snackhub_users') || '[]');
+    const found = users.find(u => u.email === email && u.password === pass);
+    if (!found) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('login-error').style.display = 'none';
+    localStorage.setItem('snackhub_user', JSON.stringify(found));
+    showToast(`Welcome back, ${found.name || found.email}! 🎉`);
+    setTimeout(() => window.location.href = 'index.html', 1200);
+  }
+
+  function handleSignup(e) {
+    e.preventDefault();
+    const name  = document.getElementById('su-name').value.trim();
+    const email = document.getElementById('su-email').value.trim();
+    const phone = document.getElementById('su-phone').value.trim();
+    const pass  = document.getElementById('su-pass').value;
+    const pass2 = document.getElementById('su-pass2').value;
+    if (pass !== pass2) {
+      document.getElementById('signup-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('signup-error').style.display = 'none';
+    const users = JSON.parse(localStorage.getItem('snackhub_users') || '[]');
+    if (users.find(u => u.email === email)) {
+      alert('An account with this email already exists. Please login.');
+      switchTab('login');
+      return;
+    }
+    const newUser = { name, email, phone, password: pass };
+    users.push(newUser);
+    localStorage.setItem('snackhub_users', JSON.stringify(users));
+    localStorage.setItem('snackhub_user', JSON.stringify(newUser));
+    showToast(`Account created! Welcome, ${name}! 🎉`);
+    setTimeout(() => window.location.href = 'index.html', 1200);
+  }
+
+  function logout() {
+    localStorage.removeItem('snackhub_user');
+    showToast('Logged out successfully!');
+    setTimeout(() => location.reload(), 800);
+  }
+
+  function socialLogin(provider) {
+    showToast(`${provider} login coming soon! 😊`);
+  }
+</script>
+</body>
+</html>

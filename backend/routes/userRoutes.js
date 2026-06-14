@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -43,4 +44,43 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// login route
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.json({
+        message: "User not found"
+      });
+    }
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.json({
+        message: "Wrong password"
+      });
+    }
+
+    res.json({
+  message: "Login successful",
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone
+  }
+});
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });
+  }
+});
 module.exports = router;

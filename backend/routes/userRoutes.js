@@ -48,9 +48,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("Email entered:", email);
+    console.log("Password entered:", password); 
 
     // Find user
     const user = await User.findOne({ email });
+
+    console.log("User found:", user);
 
     if (!user) {
       return res.json({
@@ -60,6 +64,9 @@ router.post("/login", async (req, res) => {
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Entered password:", password);
+    console.log("Stored hash:", user.password);
+    console.log("Match result:", isMatch);
 
     if (!isMatch) {
       return res.json({

@@ -158,6 +158,10 @@
         "snackhub_user",
         JSON.stringify(data.user)
       );
+      localStorage.setItem(
+           "token",
+          data.token
+      );
 
       alert("Login successful!");
 

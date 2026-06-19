@@ -61,7 +61,7 @@
     let subtotal = 0;
     let rows = '';
     cart.forEach(item => {
-      const p = PRODUCTS.find(x => x.id === item.id);
+      const p = PRODUCTS.find(x => x._id === item.id);
       const thumb = p && p.image
         ? `<img src="${p.image}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><span style="display:none;font-size:1.8rem;">${p ? p.emoji : '🍫'}</span>`
         : `<span style="font-size:1.8rem;">${p ? p.emoji : '🍫'}</span>`;
@@ -81,13 +81,13 @@
           <td><strong>₹${item.price}</strong></td>
           <td>
             <div class="qty-ctrl">
-              <button onclick="changeQty(${item.id},-1)">−</button>
+              <button onclick="changeQty('${item.id}',-1)">−</button>
               <span>${item.qty}</span>
-              <button onclick="changeQty(${item.id},1)">+</button>
+              <button onclick="changeQty('${item.id}',1)">+</button>
             </div>
           </td>
           <td><strong>₹${lineTotal}</strong></td>
-          <td><button class="remove-btn" onclick="removeItem(${item.id})" title="Remove">🗑️</button></td>
+          <td><button class="remove-btn" onclick="removeItem('${item.id}')" title="Remove">🗑️</button></td>
         </tr>`;
     });
 

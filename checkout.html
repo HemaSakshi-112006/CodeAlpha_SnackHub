@@ -123,7 +123,7 @@ if (!token) {
 
   buildSummary();
 
-  function placeOrder(e) {
+   async function placeOrder(e) {
     e.preventDefault();
     const name    = document.getElementById('co-name').value.trim();
     const phone   = document.getElementById('co-phone').value.trim();
@@ -138,11 +138,34 @@ if (!token) {
     const delivery = subtotal >= 199 ? 0 : 30;
     const order = { name, phone, email, address, payment, items: cart, subtotal, delivery, total: subtotal + delivery, date: new Date().toLocaleString('en-IN') };
 
-    // Save order to localStorage
-    const orders = JSON.parse(localStorage.getItem('snackhub_orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('snackhub_orders', JSON.stringify(orders));
-
+    try {
+  const user =
+    JSON.parse(localStorage.getItem("snackhub_user"));
+  const response = await fetch(
+    "http://localhost:5000/api/orders",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        name,
+        phone,
+        address,
+        payment,
+        items: cart,
+        total: subtotal + delivery
+      })
+    }
+  );
+  const data = await response.json();
+  console.log(data);
+} catch(error) {
+  console.log(error);
+  alert("Failed to place order");
+  return;
+}
     // Clear cart
     localStorage.removeItem('snackhub_cart');
 

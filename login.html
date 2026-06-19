@@ -154,6 +154,8 @@
 
     if (data.message === "Login successful") {
 
+      document.getElementById('login-error').style.display = 'none';
+
       localStorage.setItem(
         "snackhub_user",
         JSON.stringify(data.user)
@@ -170,6 +172,7 @@
     } else {
 
       document.getElementById('login-error').style.display = 'block';
+      document.getElementById('login-error').textContent = data.message;
 
     }
 
@@ -224,10 +227,15 @@
 }
 
   function logout() {
+
     localStorage.removeItem('snackhub_user');
+
+    localStorage.removeItem('token');
+
     showToast('Logged out successfully!');
+
     setTimeout(() => location.reload(), 800);
-  }
+}
 
   function socialLogin(provider) {
     showToast(`${provider} login coming soon! 😊`);

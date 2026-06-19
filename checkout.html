@@ -122,7 +122,21 @@ if (!token) {
   }
 
   buildSummary();
+  
+  const user = JSON.parse(
+  localStorage.getItem("snackhub_user")
+);
 
+if (user) {
+  document.getElementById("co-name").value =
+    user.name || "";
+
+  document.getElementById("co-phone").value =
+    user.phone || "";
+
+  document.getElementById("co-email").value =
+    user.email || "";
+}
    async function placeOrder(e) {
     e.preventDefault();
     const name    = document.getElementById('co-name').value.trim();

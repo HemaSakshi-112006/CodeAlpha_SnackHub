@@ -64,7 +64,14 @@
           </label>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary btn-block" style="font-size:1rem;padding:1rem;">Place Order 🚀</button>
+  <button
+  id="place-order-btn"
+  type="submit"
+  class="btn btn-primary btn-block"
+  style="font-size:1rem;padding:1rem;"
+>
+  Place Order 🚀
+</button>
     </form>
   </div>
 
@@ -74,7 +81,8 @@
       <div class="success-icon">✅</div>
       <h1 style="font-size:2rem;margin-bottom:.5rem;">Order Placed Successfully!</h1>
       <p style="color:var(--muted);margin-bottom:.5rem;">Thank you, <strong id="success-name"></strong>!</p>
-      <p style="color:var(--muted);margin-bottom:2rem;">Your snacks are on their way. Expected delivery in <strong style="color:var(--accent);">30–45 minutes</strong>. 🛵</p>
+      <h3 id="order-id-display" style="color:var(--accent);margin-bottom:1rem;"></h3>
+      <p style="color:var(--muted);margin-bottom:2rem;">Your snacks are on their way.<br> Expected delivery in <strong style="color:var(--accent);">30–45 minutes</strong>. 🛵</p>
       <div id="order-receipt" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:left;margin-bottom:2rem;"></div>
       <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
         <a href="index.html" class="btn btn-primary">🏠 Back to Home</a>
@@ -139,6 +147,10 @@ if (user) {
 }
    async function placeOrder(e) {
     e.preventDefault();
+    const btn = document.getElementById("place-order-btn");
+
+       btn.disabled = true;
+      btn.innerText = "Placing Order...";
     const name    = document.getElementById('co-name').value.trim();
     const phone   = document.getElementById('co-phone').value.trim();
     const email   = document.getElementById('co-email').value.trim();
@@ -177,6 +189,8 @@ if (user) {
   console.log(data);
 } catch(error) {
   console.log(error);
+   btn.disabled = false;
+  btn.innerText = "Place Order 🚀";
   alert("Failed to place order");
   return;
 }
@@ -184,9 +198,13 @@ if (user) {
     localStorage.removeItem('snackhub_cart');
 
     // Show success
+    const orderId =
+  "SNK" + Math.floor(Math.random() * 100000);
     document.getElementById('checkout-view').style.display = 'none';
     document.getElementById('success-view').style.display = 'block';
     document.getElementById('success-name').textContent = name;
+    document.getElementById('order-id-display').textContent =
+  "Order ID: " + orderId;
 
     let receiptHTML = `
       <div style="margin-bottom:.8rem;font-size:.82rem;color:var(--muted);">Order placed on ${order.date}</div>

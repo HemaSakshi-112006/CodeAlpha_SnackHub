@@ -47,10 +47,50 @@
         <input type="email" id="co-email" placeholder="e.g. hema@email.com"/>
       </div>
       <div class="form-group">
-        <label for="address">Delivery Address</label>
-        <textarea id="co-address" placeholder="House No., Street, Area, City, Pincode" required></textarea>
-      </div>
-      <div class="form-group">
+  <label>House / Flat No.</label>
+  <input
+    type="text"
+    id="co-house"
+    placeholder="Flat No / House No"
+    required>
+</div>
+
+<div class="form-group">
+  <label>Street / Area</label>
+  <input
+    type="text"
+    id="co-street"
+    placeholder="Street / Area"
+    required>
+</div>
+
+<div class="form-group">
+  <label>City</label>
+  <input
+    type="text"
+    id="co-city"
+    placeholder="City"
+    required>
+</div>
+
+<div class="form-group">
+  <label>State</label>
+  <input
+    type="text"
+    id="co-state"
+    placeholder="State"
+    required>
+</div>
+
+<div class="form-group">
+  <label>Pincode</label>
+  <input
+    type="text"
+    id="co-pincode"
+    placeholder="560001"
+    pattern="[0-9]{6}"
+    required>
+</div>
         <label>Payment Method</label>
         <div style="display:flex;gap:.8rem;margin-top:.5rem;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;">
@@ -99,6 +139,7 @@
 </footer>
 
 <script src="js/products.js"></script>
+<script src="js/nav.js"></script>
 <script>
   
   const token = localStorage.getItem("token");
@@ -154,8 +195,14 @@ if (user) {
     const name    = document.getElementById('co-name').value.trim();
     const phone   = document.getElementById('co-phone').value.trim();
     const email   = document.getElementById('co-email').value.trim();
-    const address = document.getElementById('co-address').value.trim();
+    const house = document.getElementById('co-house').value.trim();
+    const street = document.getElementById('co-street').value.trim();
+    const city = document.getElementById('co-city').value.trim();
+    const state = document.getElementById('co-state').value.trim();
+    const pincode = document.getElementById('co-pincode').value.trim();
     const payment = document.querySelector('input[name="payment"]:checked').value;
+    
+    const address = `${house}, ${street}, ${city}, ${state} - ${pincode}`;
     const cart    = getCart();
     if (cart.length === 0) { alert('Your cart is empty!'); return; }
 

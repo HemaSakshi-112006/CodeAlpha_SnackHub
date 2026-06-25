@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>My Profile – SnackHub</title>
+  <meta name="description" content="Manage your SnackHub profile, orders, addresses and wishlist."/>
+  <link rel="stylesheet" href="css/style.css"/>
+ <link rel="stylesheet" href="css/profile.css"/>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" id="hero-search" placeholder="Search snacks…"
+             onkeydown="if(event.key==='Enter')window.location='products.html?q='+this.value"/>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <button class="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div id="sh-toast"></div>
+
+<!-- MAIN PROFILE CONTENT -->
+<div class="profile-wrap">
+
+  <!-- ── SECTION 1: HERO ── -->
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profile-avatar">HS</div>
+    <div class="profile-hero-info">
+      <div class="profile-hero-badge">🍫 SnackHub Member</div>
+      <h1 id="profile-name">Hema Sakshi</h1>
+      <div class="profile-hero-meta">
+        <span>✉️ <span id="profile-email">hema123@gmail.com</span></span>
+        <span>📅 Joined <span id="profile-joined">June 2026</span></span>
+      </div>
+    </div>
+    <button class="profile-edit-btn" id="edit-profile-btn" onclick="toggleEditModal()">✏️ Edit Profile</button>
+  </div>
+
+  <!-- ── SECTION 2: QUICK STATS ── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value" id="stat-orders">12</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">❤️</div>
+      <div class="stat-value" id="stat-wishlist">8</div>
+      <div class="stat-label">Wishlist Items</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📍</div>
+      <div class="stat-value" id="stat-addresses">2</div>
+      <div class="stat-label">Saved Addresses</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value" id="stat-spent">₹2,340</div>
+      <div class="stat-label">Total Spent</div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: RECENT ORDERS ── -->
+  <div class="profile-section">
+    <div class="profile-section-header">
+      <div class="profile-section-title">📦 Recent Orders</div>
+      <a href="my-orders.html" class="view-all-link">View All Orders →</a>
+    </div>
+    <div id="recent-orders-list">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: QUICK ACTIONS ── -->
+  <div class="quick-actions-grid">
+    <a href="my-orders.html" class="qa-card">
+      <div class="qa-icon">📦</div>
+      <div class="qa-label">My Orders</div>
+    </a>
+    <a href="#" class="qa-card" id="qa-addresses">
+      <div class="qa-icon">📍</div>
+      <div class="qa-label">Saved Addresses</div>
+    </a>
+    <a href="#" class="qa-card" id="qa-wishlist">
+      <div class="qa-icon">❤️</div>
+      <div class="qa-label">Wishlist</div>
+    </a>
+    <a href="#" class="qa-card logout-card" onclick="doLogout(event)">
+      <div class="qa-icon">🚪</div>
+      <div class="qa-label">Logout</div>
+    </a>
+  </div>
+
+  <!-- Sections 5–9 will go here -->
+  <div id="more-sections-placeholder"></div>
+
+</div><!-- /profile-wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#ff6b00,#ffaa00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🍫 SnackHub</div>
+      <p>Your one-stop destination for all things crunchy, sweet, and delicious.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">My Cart</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <ul>
+        <li><a href="profile.html">My Profile</a></li>
+        <li><a href="my-orders.html">My Orders</a></li>
+        <li><a href="login.html">Login / Register</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SnackHub. All rights reserved.</span>
+    <span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script src="js/nav.js"></script>
+<script>
+  /* ── Helpers ── */
+  function updateCartBadge() {
+    const cart = JSON.parse(localStorage.getItem('snackhub_cart') || '[]');
+    const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
+    const badge = document.getElementById('cart-badge');
+    if (badge) { badge.textContent = total; badge.style.display = total ? 'flex' : 'none'; }
+  }
+  function toggleMobileMenu() {
+    const links = document.querySelector('.nav-links');
+    if (links) links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  }
+  function showToast(msg) {
+    const t = document.getElementById('sh-toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+  function doLogout(e) {
+    e.preventDefault();
+    localStorage.removeItem('snackhub_user');
+    localStorage.removeItem('token');
+    showToast('Logged out successfully!');
+    setTimeout(() => window.location.href = 'index.html', 900);
+  }
+  function toggleEditModal() {
+    showToast('✏️ Edit Profile coming soon!');
+  }
+
+  /* ── Load user data ── */
+  const user = JSON.parse(localStorage.getItem('snackhub_user') || 'null');
+
+  if (!user) {
+    // Redirect to login if not logged in
+    window.location.href = 'login.html';
+  } else {
+    const name = user.name || user.email || 'User';
+    const parts = name.trim().split(/\s+/);
+    const initials = parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0].slice(0, 2).toUpperCase();
+
+    document.getElementById('profile-avatar').textContent = initials;
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-email').textContent = user.email || '—';
+
+    if (user.createdAt) {
+      const d = new Date(user.createdAt);
+      document.getElementById('profile-joined').textContent =
+        d.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+    }
+  }
+
+  /* ── Recent Orders ── */
+  const sampleOrders = [
+    { id: 'SNK45872', status: 'Processing', amount: '₹120', date: '24 Jun 2026' },
+    { id: 'SNK45801', status: 'Delivered',  amount: '₹90',  date: '20 Jun 2026' },
+    { id: 'SNK45765', status: 'Delivered',  amount: '₹210', date: '15 Jun 2026' },
+  ];
+
+  const statusClass = { Processing: 'status-processing', Delivered: 'status-delivered', Cancelled: 'status-cancelled' };
+
+  const ordersContainer = document.getElementById('recent-orders-list');
+  if (sampleOrders.length === 0) {
+    ordersContainer.innerHTML = '<div class="orders-empty">📭 No orders yet. Start shopping!</div>';
+  } else {
+    sampleOrders.forEach(o => {
+      ordersContainer.innerHTML += `
+        <div class="order-row">
+          <div>
+            <div class="order-id">#${o.id}</div>
+            <div class="order-date">${o.date}</div>
+          </div>
+          <span class="order-status ${statusClass[o.status] || ''}">${o.status}</span>
+          <div class="order-amount">${o.amount}</div>
+        </div>`;
+    });
+  }
+
+  updateCartBadge();
+</script>
+</body>
+</html>

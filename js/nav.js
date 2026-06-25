@@ -45,10 +45,10 @@
           </div>
         </div>
         <div class="nav-dropdown-divider"></div>
-        <a href="#" class="nav-dropdown-item" role="menuitem">
+        <a href="profile.html" class="nav-dropdown-item" role="menuitem">
           <span>👤</span> My Profile
         </a>
-        <a href="#" class="nav-dropdown-item" role="menuitem">
+        <a href="my-orders.html" class="nav-dropdown-item" role="menuitem">
           <span>📦</span> My Orders
         </a>
         <a href="#" class="nav-dropdown-item" role="menuitem">

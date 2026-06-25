@@ -32,6 +32,11 @@
     <!-- Order Summary -->
     <div class="order-summary-mini" id="order-summary"></div>
 
+     <div id="saved-addresses-section" style="margin:20px 0;">
+        <h3>📍 Saved Addresses</h3>
+        <div id="saved-address-list"></div>
+        </div>
+
     <!-- Form -->
     <form id="checkout-form" onsubmit="placeOrder(event)">
       <div class="form-group">
@@ -171,11 +176,10 @@ if (!token) {
   }
 
   buildSummary();
-  
+  let savedAddresses = [];
   const user = JSON.parse(
   localStorage.getItem("snackhub_user")
 );
-
 if (user) {
   document.getElementById("co-name").value =
     user.name || "";
@@ -185,6 +189,51 @@ if (user) {
 
   document.getElementById("co-email").value =
     user.email || "";
+}
+
+async function loadSavedAddresses() {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/addresses/user/${user.id}`
+    );
+    savedAddresses = await response.json();
+    console.log(savedAddresses);
+    const container =
+      document.getElementById("saved-address-list");
+    container.innerHTML = "";
+    if(savedAddresses.length === 0){
+      container.innerHTML =
+        "<p>No saved addresses found.</p>";
+      return;
+    }
+    savedAddresses.forEach(address => {
+  container.innerHTML += `
+    <div class="saved-address-card">
+      <h4>🏠 ${address.label || "Address"}</h4>
+
+      <p><strong>${address.fullName}</strong></p>
+
+      <p>${address.phone}</p>
+
+      <p>
+        ${address.addressLine},
+        ${address.city},
+        ${address.state} -
+        ${address.pincode}
+      </p>
+
+      <button
+        type="button"
+        onclick="selectAddress('${address._id}')"
+      >
+        Use This Address
+      </button>
+    </div>
+  `;
+});
+  } catch(error) {
+    console.log(error);
+  }
 }
    async function placeOrder(e) {
     e.preventDefault();
@@ -266,6 +315,33 @@ if (user) {
     document.getElementById('order-receipt').innerHTML = receiptHTML;
     updateCartBadge();
   }
+  function selectAddress(id) {
+
+  const address = savedAddresses.find(
+    a => a._id === id
+  );
+
+  if (!address) return;
+
+  document.getElementById("co-name").value =
+    address.fullName || "";
+
+  document.getElementById("co-phone").value =
+    address.phone || "";
+
+  document.getElementById("co-house").value =
+    address.addressLine || "";
+
+  document.getElementById("co-city").value =
+    address.city || "";
+
+  document.getElementById("co-state").value =
+    address.state || "";
+
+  document.getElementById("co-pincode").value =
+    address.pincode || "";
+}
+  loadSavedAddresses();
 </script>
 </body>
 </html>

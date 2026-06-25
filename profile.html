@@ -126,7 +126,7 @@
       <div class="qa-icon">📦</div>
       <div class="qa-label">My Orders</div>
     </a>
-    <a href="#" class="qa-card" id="qa-addresses">
+    <a href="addresses.html" class="qa-card" id="qa-addresses">
       <div class="qa-icon">📍</div>
       <div class="qa-label">Saved Addresses</div>
     </a>
@@ -158,7 +158,7 @@
     <div class="footer-col">
       <h4>Account</h4>
       <ul>
-        <li><a href="profile.html">My Profile</a></li>
+        <li><a href="addresses.html">Saved Addresses</a></li>
         <li><a href="my-orders.html">My Orders</a></li>
         <li><a href="login.html">Login / Register</a></li>
       </ul>
@@ -256,8 +256,18 @@ function updateProfileStats(orders) {
   document.getElementById("stat-spent").textContent =
     `₹${totalSpent}`;
   document.getElementById("stat-wishlist").textContent = "0";
-  document.getElementById("stat-addresses").textContent = "0";
 }
+
+async function loadAddressesCount() {
+  try {
+    const res = await fetch(`http://localhost:5000/api/addresses/user/${user.id}`);
+    const addresses = await res.json();
+    document.getElementById("stat-addresses").textContent = addresses.length;
+  } catch (err) {
+    console.error("Error loading addresses count:", err);
+  }
+}
+
 
 function renderRecentOrders(orders) {
   const container =
@@ -297,6 +307,7 @@ function renderRecentOrders(orders) {
 }
   updateCartBadge();
   loadOrders();
+  loadAddressesCount();
 </script>
 </body>
 </html>

@@ -56,4 +56,20 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// UPDATE ADDRESS
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedAddress = await Address.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { returnDocument: "after" }
+    );
+    res.json(updatedAddress);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+});
+
 module.exports = router;

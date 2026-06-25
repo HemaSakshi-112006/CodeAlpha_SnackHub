@@ -51,7 +51,7 @@
         <a href="my-orders.html" class="nav-dropdown-item" role="menuitem">
           <span>📦</span> My Orders
         </a>
-        <a href="#" class="nav-dropdown-item" role="menuitem">
+        <a href="addresses.html" class="nav-dropdown-item" role="menuitem">
           <span>📍</span> Saved Addresses
         </a>
         <a href="#" class="nav-dropdown-item" role="menuitem">

@@ -207,30 +207,52 @@ async function loadSavedAddresses() {
       return;
     }
     savedAddresses.forEach(address => {
-  container.innerHTML += `
-    <div class="saved-address-card">
-      <h4>🏠 ${address.label || "Address"}</h4>
+ container.innerHTML += `
+<div class="saved-address-card">
 
-      <p><strong>${address.fullName}</strong></p>
+    <div class="saved-address-header">
 
-      <p>${address.phone}</p>
+        <h4 class="saved-address-label">
+            🏠 ${address.label || "Address"}
+        </h4>
 
-      <p>
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="selectAddress('${address._id}')"
+        >
+            Use This Address
+        </button>
+
+    </div>
+
+    <div class="saved-address-details">
+        <strong>${address.fullName}</strong>
+    </div>
+
+    <div>
+        ${address.phone}
+    </div>
+
+    <div>
         ${address.addressLine},
         ${address.city},
-        ${address.state} -
+        ${address.state}
+        -
         ${address.pincode}
-      </p>
-
-      <button
-        type="button"
-        onclick="selectAddress('${address._id}')"
-      >
-        Use This Address
-      </button>
     </div>
-  `;
+
+</div>
+`;
 });
+
+container.innerHTML += `
+<div class="view-addresses-wrap">
+    <a href="addresses.html" class="btn btn-outline">
+        View All Addresses
+    </a>
+</div>
+`;
   } catch(error) {
     console.log(error);
   }
@@ -331,6 +353,9 @@ async function loadSavedAddresses() {
 
   document.getElementById("co-house").value =
     address.addressLine || "";
+
+  document.getElementById("co-street").value =
+  address.addressLine || "";
 
   document.getElementById("co-city").value =
     address.city || "";

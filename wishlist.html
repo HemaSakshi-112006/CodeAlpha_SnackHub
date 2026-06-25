@@ -96,47 +96,11 @@
   <div class="wishlist-grid" id="wishlist-grid">
     <!-- Populated by JS -->
   </div>
+<div class="recommendations-section">
+  <h2 class="recommendations-title">✨ You May Also Like</h2>
 
-  <!-- RECOMMENDED PRODUCTS SECTION -->
-  <div class="recommendations-section">
-    <h2 class="recommendations-title">✨ You May Also Like</h2>
-    <div class="recommendations-grid">
-      
-      <!-- Recommended 1 -->
-      <div class="rec-card">
-        <div class="rec-thumb">🍫</div>
-        <div class="rec-name">KitKat</div>
-        <div class="rec-price">₹60</div>
-        <button class="add-btn" onclick="addToCart('KitKat', 60)">🛒 Add</button>
-      </div>
-
-      <!-- Recommended 2 -->
-      <div class="rec-card">
-        <div class="rec-thumb">🍪</div>
-        <div class="rec-name">Good Day</div>
-        <div class="rec-price">₹30</div>
-        <button class="add-btn" onclick="addToCart('Good Day', 30)">🛒 Add</button>
-      </div>
-
-      <!-- Recommended 3 -->
-      <div class="rec-card">
-        <div class="rec-thumb">🍟</div>
-        <div class="rec-name">Lays</div>
-        <div class="rec-price">₹20</div>
-        <button class="add-btn" onclick="addToCart('Lays', 20)">🛒 Add</button>
-      </div>
-
-      <!-- Recommended 4 -->
-      <div class="rec-card">
-        <div class="rec-thumb">🥤</div>
-        <div class="rec-name">Coca Cola</div>
-        <div class="rec-price">₹40</div>
-        <button class="add-btn" onclick="addToCart('Coca Cola', 40)">🛒 Add</button>
-      </div>
-
-    </div>
+  <div class="recommendations-grid" id="recommendations-grid">
   </div>
-
 </div>
 
 <!-- FOOTER -->
@@ -271,7 +235,7 @@ ${
              <button class="w-btn-sec btn-view" onclick="viewDetails('${item._id}')">👁 View Details</button>
               <button class="w-btn-sec btn-remove"
         onclick="removeFromWishlist('${item._id}')">
-        ❤️ Remove
+        💔 Remove
 </button>
             </div>
           </div>
@@ -372,9 +336,80 @@ const inCartCount = wishlistItems.filter(w =>
     renderWishlist(sorted);
   }
 
+  async function loadRecommendations() {
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/products"
+    );
+    const products = await res.json();
+    const grid =
+      document.getElementById("recommendations-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    // show first 4 products
+    const recommendations =
+      products.slice(0, 4);
+    recommendations.forEach(product => {
+      grid.innerHTML += `
+        <div class="rec-card">
+          <div class="rec-thumb">
+            ${
+              product.image
+                ? `<img src="${product.image}" class="product-img">`
+                : product.emoji
+            }
+          </div>
+          <div class="rec-name">
+            ${product.name}
+          </div>
+          <div class="rec-price">
+            ₹${product.price}
+          </div>
+          <button
+            class="add-btn"
+            onclick="addRecommendationToCart('${product._id}')">
+            🛒 Add
+          </button>
+        </div>
+      `;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function addRecommendationToCart(productId) {
+  const product =
+    PRODUCTS.find(
+      p => p._id === productId
+    );
+  if (!product) return;
+  const cart = getCart();
+  const existing =
+    cart.find(
+      item => item.id === productId
+    );
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      qty: 1
+    });
+  }
+  saveCart(cart);
+
+  showToast(
+    `${product.name} added to cart! 🛒`
+  );
+}
+
   /* ── Initializer ── */
   updateCartBadge();
 loadWishlist();
+loadRecommendations();
 </script>
 </body>
 </html>

@@ -54,6 +54,37 @@
     <button class="profile-edit-btn" id="edit-profile-btn" onclick="toggleEditModal()">✏️ Edit Profile</button>
   </div>
 
+  <!-- ── SECTION 5: ACCOUNT INFORMATION ── -->
+<div class="profile-section">
+  <div class="profile-section-header">
+    <div class="profile-section-title">👤 Account Information</div>
+  </div>
+
+  <div class="account-info-card">
+
+    <div class="info-row">
+      <span class="info-label">Full Name</span>
+      <span class="info-value" id="account-name">Loading...</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Email Address</span>
+      <span class="info-value" id="account-email">Loading...</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Phone Number</span>
+      <span class="info-value" id="account-phone">Loading...</span>
+    </div>
+
+    <div class="info-row">
+      <span class="info-label">Member Since</span>
+      <span class="info-value" id="account-joined">Loading...</span>
+    </div>
+
+  </div>
+</div>
+
   <!-- ── SECTION 2: QUICK STATS ── -->
   <div class="stats-grid">
     <div class="stat-card">
@@ -108,11 +139,6 @@
       <div class="qa-label">Logout</div>
     </a>
   </div>
-
-  <!-- Sections 5–9 will go here -->
-  <div id="more-sections-placeholder"></div>
-
-</div><!-- /profile-wrap -->
 
 <!-- FOOTER -->
 <footer>
@@ -195,35 +221,82 @@
       document.getElementById('profile-joined').textContent =
         d.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
     }
+     document.getElementById("account-name").textContent =
+    user.name || "Not Available";
+
+  document.getElementById("account-email").textContent =
+    user.email || "Not Available";
+
+  document.getElementById("account-phone").textContent =
+    user.phone || "Not Available";
+
+  document.getElementById("account-joined").textContent =
+    document.getElementById("profile-joined").textContent;
+  }
+/* ── Load Orders From Database ── */
+async function loadOrders() {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/orders/user/${user.id}`
+    );
+    const orders = await res.json();
+    updateProfileStats(orders);
+    renderRecentOrders(orders);
+  } catch (err) {
+    console.error("Error loading orders:", err);
+  }
+}
+function updateProfileStats(orders) {
+  document.getElementById("stat-orders").textContent =
+    orders.length;
+  let totalSpent = 0;
+  orders.forEach(order => {
+    totalSpent += order.total || 0;
+  });
+  document.getElementById("stat-spent").textContent =
+    `₹${totalSpent}`;
+  document.getElementById("stat-wishlist").textContent = "0";
+  document.getElementById("stat-addresses").textContent = "0";
+}
+
+function renderRecentOrders(orders) {
+  const container =
+    document.getElementById("recent-orders-list");
+  container.innerHTML = "";
+  if (orders.length === 0) {
+    container.innerHTML = `
+      <div class="orders-empty">
+        📭 No orders yet. Start shopping!
+      </div>
+    `;
+    return;
   }
 
-  /* ── Recent Orders ── */
-  const sampleOrders = [
-    { id: 'SNK45872', status: 'Processing', amount: '₹120', date: '24 Jun 2026' },
-    { id: 'SNK45801', status: 'Delivered',  amount: '₹90',  date: '20 Jun 2026' },
-    { id: 'SNK45765', status: 'Delivered',  amount: '₹210', date: '15 Jun 2026' },
-  ];
-
-  const statusClass = { Processing: 'status-processing', Delivered: 'status-delivered', Cancelled: 'status-cancelled' };
-
-  const ordersContainer = document.getElementById('recent-orders-list');
-  if (sampleOrders.length === 0) {
-    ordersContainer.innerHTML = '<div class="orders-empty">📭 No orders yet. Start shopping!</div>';
-  } else {
-    sampleOrders.forEach(o => {
-      ordersContainer.innerHTML += `
-        <div class="order-row">
-          <div>
-            <div class="order-id">#${o.id}</div>
-            <div class="order-date">${o.date}</div>
+  const recentOrders = orders.slice(0, 3);
+  recentOrders.forEach(order => {
+    container.innerHTML += `
+      <div class="order-row">
+        <div>
+          <div class="order-id">
+            #${order._id.slice(-6)}
           </div>
-          <span class="order-status ${statusClass[o.status] || ''}">${o.status}</span>
-          <div class="order-amount">${o.amount}</div>
-        </div>`;
-    });
-  }
-
+          <div class="order-date">
+            ${new Date(order.orderDate)
+              .toLocaleDateString("en-IN")}
+          </div>
+        </div>
+        <span class="order-status status-processing">
+          Processing
+        </span>
+        <div class="order-amount">
+          ₹${order.total}
+        </div>
+      </div>
+    `;
+  });
+}
   updateCartBadge();
+  loadOrders();
 </script>
 </body>
 </html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>My Orders – SnackHub</title>
+  <meta name="description" content="Track and review all your SnackHub orders."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/orders.css"/>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍫 SnackHub</a>
+    <div class="nav-search">
+      <span>🔍</span>
+      <input type="text" id="hero-search" placeholder="Search snacks…"
+             onkeydown="if(event.key==='Enter')window.location='products.html?q='+this.value"/>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li>
+        <a href="cart.html" class="nav-cart-wrap">🛒 Cart
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+      </li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <button class="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div id="sh-toast"></div>
+
+<!-- MAIN CONTAINER -->
+<div class="orders-wrap">
+  
+  <!-- PAGE HEADER -->
+  <div class="orders-header">
+    <div class="orders-header-info">
+      <h1>📦 My Orders</h1>
+      <p>Track and review all your SnackHub orders</p>
+    </div>
+    <div class="orders-counter-badge">
+      Total Orders: <span id="orders-count">0</span>
+    </div>
+  </div>
+
+  <!-- SEARCH + SORT ROW -->
+  <div class="search-sort-row">
+    <div class="search-box-wrap">
+      <span>🔍</span>
+      <input type="text" id="order-search" class="search-box-input" placeholder="Search by Order ID or Product Name"/>
+    </div>
+    <div class="sort-dropdown-wrap">
+      <select id="order-sort" class="sort-select">
+        <option value="latest">Latest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="price-high">Price High-Low</option>
+        <option value="price-low">Price Low-High</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- FILTER BUTTONS -->
+  <div class="filter-buttons-row">
+    <button class="filter-orders-btn active" onclick="setOrderFilter('All', this)">All Orders</button>
+    <button class="filter-orders-btn" onclick="setOrderFilter('Processing', this)">Processing</button>
+    <button class="filter-orders-btn" onclick="setOrderFilter('Delivered', this)">Delivered</button>
+    <button class="filter-orders-btn" onclick="setOrderFilter('Cancelled', this)">Cancelled</button>
+  </div>
+
+  <!-- ORDERS CONTAINER -->
+  <div id="orders-container">
+    <!-- Sample Card Inside initially as per Step 7 -->
+    <div class="order-card processing" data-id="SNK45872">
+      <div class="order-card-header">
+        <div class="order-card-title">📦 Order #SNK45872</div>
+        <div class="order-card-date">Placed on: 25 Jun 2026</div>
+        <div class="order-card-status processing">
+          <span class="status-indicator"></span>🟡 Processing
+        </div>
+      </div>
+      <div class="order-card-body">
+        <div class="order-items-list">
+          <div class="order-item-row">
+            <span class="order-item-dot">●</span>
+            Lays <span class="order-item-qty">× 2</span>
+          </div>
+          <div class="order-item-row">
+            <span class="order-item-dot">●</span>
+            Oreo <span class="order-item-qty">× 1</span>
+          </div>
+        </div>
+        <div class="order-total-block">
+          <span class="order-total-label">Total</span>
+          <span class="order-total-val">₹110</span>
+        </div>
+      </div>
+      <div class="order-card-actions">
+        <button class="order-action-btn primary" onclick="trackOrder('${order._id}')">Track Order</button>
+        <button class="order-action-btn" onclick="reorder('${order._id}')">Reorder</button>
+        <button class="order-action-btn" onclick="viewOrderDetails('${order._id}')">View Details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div id="empty-orders" class="empty-orders-box" style="display:none;">
+    <div class="empty-orders-icon">📦</div>
+    <h2>No Orders Yet</h2>
+    <p>Your snack journey hasn't started yet!</p>
+    <a href="products.html" class="btn btn-primary empty-orders-btn">Shop Now</a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#ff6b00,#ffaa00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🍫 SnackHub</div>
+      <p>Your one-stop destination for all things crunchy, sweet, and delicious.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="cart.html">My Cart</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <ul>
+        <li><a href="profile.html">My Profile</a></li>
+        <li><a href="my-orders.html">My Orders</a></li>
+        <li><a href="login.html">Login / Register</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SnackHub. All rights reserved.</span>
+    <span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="js/nav.js"></script>
+<script>
+  // ── Authentication Check ──
+  const user = JSON.parse(localStorage.getItem('snackhub_user') || 'null');
+  if (!user) {
+    window.location.href = 'login.html';
+  }
+
+  // ── Toast Helper ──
+  function showToast(msg) {
+    const t = document.getElementById('sh-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Cart Counter Update ──
+  function updateCartBadge() {
+    const cart = JSON.parse(localStorage.getItem('snackhub_cart') || '[]');
+    const total = cart.reduce((s, i) => s + (i.qty || 1), 0);
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+      badge.textContent = total;
+      badge.style.display = total ? 'flex' : 'none';
+    }
+  }
+  updateCartBadge();
+
+  function toggleMobileMenu() {
+    const links = document.querySelector('.nav-links');
+    if (links) links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  let orders = [];
+  let activeFilter = 'All';
+
+  // Load orders from API or local storage fallback
+  async function loadOrders() {
+    if (!user) return;
+    
+    // Check if there are orders placed in local storage or mock database
+    try {
+      const response = await fetch(`http://localhost:5000/api/orders/user/${user.id || user._id}`);
+      if (response.ok) {
+        const apiOrders = await response.json();
+        if (apiOrders && apiOrders.length > 0) {
+          // Map backend orders to include status and date mapping
+          const mappedOrders = apiOrders.map(o => ({
+            _id: o._id || ('SNK' + Math.floor(Math.random() * 100000)),
+            orderDate: o.orderDate || new Date().toISOString(),
+            items: o.items || [],
+            total: o.total || 0,
+            // Backend schema does not have status, so assign a default
+            status: o.status || 'Processing' 
+          }));
+          orders = mappedOrders;
+        }
+      }
+    } catch (e) {
+      console.warn("Backend server not reachable. Running in offline/localStorage fallback mode.", e);
+    }
+
+    // De-duplicate orders by ID
+    const uniqueMap = {};
+    orders.forEach(o => {
+      uniqueMap[o._id] = o;
+    });
+    orders = Object.values(uniqueMap);
+
+    filterAndRenderOrders();
+  }
+
+  // Filter and Render Orders
+  function filterAndRenderOrders() {
+    const searchVal = document.getElementById('order-search').value.toLowerCase().trim();
+    const sortVal = document.getElementById('order-sort').value;
+    const container = document.getElementById('orders-container');
+    const emptyState = document.getElementById('empty-orders');
+    const countDisplay = document.getElementById('orders-count');
+
+    // 1. Filter
+    let filtered = orders.filter(o => {
+      const matchesFilter = activeFilter === 'All' || o.status.toLowerCase() === activeFilter.toLowerCase();
+      
+      const orderIdMatch = o._id.toLowerCase().includes(searchVal);
+      const itemsMatch = o.items.some(item => item.name.toLowerCase().includes(searchVal));
+      const matchesSearch = !searchVal || orderIdMatch || itemsMatch;
+
+      return matchesFilter && matchesSearch;
+    });
+
+    // 2. Sort
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.orderDate);
+      const dateB = new Date(b.orderDate);
+      
+      if (sortVal === 'latest') return dateB - dateA;
+      if (sortVal === 'oldest') return dateA - dateB;
+      if (sortVal === 'price-high') return b.total - a.total;
+      if (sortVal === 'price-low') return a.total - b.total;
+      return 0;
+    });
+
+    // 3. Update counter
+    countDisplay.textContent = filtered.length;
+
+    // 4. Render
+    if (filtered.length === 0) {
+      container.innerHTML = '';
+      emptyState.style.display = 'flex';
+    } else {
+      emptyState.style.display = 'none';
+      container.innerHTML = filtered.map(o => {
+        const formattedDate = new Date(o.orderDate).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+        
+        const statusEmoji = o.status === 'Processing' ? '🟡' : (o.status === 'Delivered' ? '🟢' : '🔴');
+        const statusClass = o.status.toLowerCase();
+        
+        const itemsHtml = o.items.map(item => `
+          <div class="order-item-row">
+            <span class="order-item-dot">●</span>
+            ${item.name} <span class="order-item-qty">× ${item.qty}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="order-card ${statusClass}" data-id="${o._id}">
+            <div class="order-card-header">
+              <div class="order-card-title">📦 Order #${o._id}</div>
+              <div class="order-card-date">Placed on: ${formattedDate}</div>
+              <div class="order-card-status ${statusClass}">
+                <span class="status-indicator"></span>${statusEmoji} ${o.status}
+              </div>
+            </div>
+            <div class="order-card-body">
+              <div class="order-items-list">
+                ${itemsHtml}
+              </div>
+              <div class="order-total-block">
+                <span class="order-total-label">Total</span>
+                <span class="order-total-val">₹${o.total}</span>
+              </div>
+            </div>
+            <div class="order-card-actions">
+              <button class="order-action-btn primary" onclick="trackOrder('${o._id}')">Track Order</button>
+              <button class="order-action-btn" onclick="reorder('${o._id}')">Reorder</button>
+              <button class="order-action-btn" onclick="viewOrderDetails('${o._id}')">View Details</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // ── Actions ──
+  function setOrderFilter(filter, btn) {
+    activeFilter = filter;
+    document.querySelectorAll('.filter-orders-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterAndRenderOrders();
+  }
+
+  // Custom helper to track orders
+  function trackOrder(orderId) {
+    const order = orders.find(o => o._id === orderId);
+    if (!order) return;
+    
+    let trackMessage = `Status: ${order.status}. `;
+    if (order.status === 'Processing') {
+      trackMessage += `Your snacks are being prepared. Expect delivery in 20-30 mins! 🛵`;
+    } else if (order.status === 'Delivered') {
+      trackMessage += `Delivered successfully! Hope you enjoyed your SnackHub treat. 😋`;
+    } else {
+      trackMessage += `This order was cancelled. Please place a new order. 🍫`;
+    }
+    showToast(`📦 Track Order #${orderId}: ${trackMessage}`);
+  }
+
+  // Custom helper to reorder
+  function reorder(orderId) {
+    const order = orders.find(o => o._id === orderId);
+    if (!order) return;
+
+    let cart = JSON.parse(localStorage.getItem('snackhub_cart') || '[]');
+    order.items.forEach(item => {
+      const existing = cart.find(i => i.name === item.name);
+      if (existing) {
+        existing.qty += item.qty;
+      } else {
+        cart.push({
+          id: item.id || ('temp_' + Math.floor(Math.random() * 1000)),
+          name: item.name,
+          price: item.price,
+          qty: item.qty
+        });
+      }
+    });
+
+    localStorage.setItem('snackhub_cart', JSON.stringify(cart));
+    updateCartBadge();
+    showToast(`🛒 Items from Order #${orderId} added to cart!`);
+  }
+
+  // Custom helper to view details
+  function viewOrderDetails(orderId) {
+    window.location.href = `order-details.html?id=${orderId}`;
+  }
+
+  // Event Listeners for search & sort
+  document.getElementById('order-search').addEventListener('input', filterAndRenderOrders);
+  document.getElementById('order-sort').addEventListener('change', filterAndRenderOrders);
+
+  // Initialize
+  window.addEventListener('DOMContentLoaded', loadOrders);
+</script>
+</body>
+</html>

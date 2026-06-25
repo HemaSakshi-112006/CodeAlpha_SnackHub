@@ -75,6 +75,34 @@
       background: var(--accent); color: #fff;
       box-shadow: 0 6px 20px rgba(255,107,0,.35);
     }
+    .account-info-card {
+  background:#0d0d0d;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #eee;
+}
+
+.info-value {
+  font-weight: 700;
+  color: #ff6b00;
+}
 
     /* ── 2. QUICK STATS ── */
     .stats-grid {

@@ -58,8 +58,8 @@
       <span class="w-stat-value" id="stat-items-count">12</span>
     </div>
     <div class="w-stat-card">
-      <span class="w-stat-title">🛒 Ready To Buy</span>
-      <span class="w-stat-value" id="stat-ready-count">12</span>
+      <span class="w-stat-title">🛒 In Cart</span>
+      <span class="w-stat-value" id="stat-cart">0</span>
     </div>
     <div class="w-stat-card">
       <span class="w-stat-title">💰 Estimated Value</span>
@@ -185,7 +185,7 @@ localStorage.getItem("snackhub_wishlist")
   
   const heroBadge = document.getElementById('hero-badge-count');
   const statCount = document.getElementById('stat-items-count');
-  const statReady = document.getElementById('stat-ready-count');
+  const statCart = document.getElementById("stat-cart");
   const statVal = document.getElementById('stat-est-value');
 
   /* ── Helpers ── */
@@ -212,7 +212,23 @@ localStorage.getItem("snackhub_wishlist")
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2800);
   }
-
+async function loadWishlist() {
+  const user =
+    JSON.parse(
+      localStorage.getItem("snackhub_user")
+    );
+  if (!user) return;
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/wishlist/user/${user.id}`
+    );
+    wishlistItems =
+      await response.json();
+    renderWishlist();
+  } catch (err) {
+    console.error(err);
+  }
+}
   /* ── Render Function ── */
   function renderWishlist(itemsToRender = wishlistItems) {
     gridContainer.innerHTML = '';
@@ -234,22 +250,29 @@ localStorage.getItem("snackhub_wishlist")
       card.dataset.id = item.id;
       
       card.innerHTML = `
-        <span class="stock-badge ${item.inStock ? 'stock-in' : 'stock-out'}">
-          ${item.inStock ? 'In Stock' : 'Out of Stock'}
-        </span>
+       <span class="stock-badge stock-in">
+  In Stock
+</span>
         <div class="product-thumb">
-          <div class="emoji-thumb">${item.emoji}</div>
-        </div>
+${
+    item.image
+      ? `<img src="${item.image}" alt="${item.name}" class="product-img">`
+      : `<div class="emoji-thumb">${item.emoji}</div>`
+  }
+</div>
         <div class="product-info">
           <div class="product-cat-tag">${item.category}</div>
           <h3 class="product-name">${item.name}</h3>
           <div class="product-price">₹${item.price}</div>
           
           <div class="w-product-actions">
-            <button class="add-btn" onclick="addToCart('${item.name}', ${item.price})">🛒 Add To Cart</button>
+            <button class="add-btn" onclick="addToCart('${item._id}', '${item.name}', ${item.price})"> 🛒 Add To Cart </button>
             <div class="w-secondary-actions">
-              <button class="w-btn-sec btn-view" onclick="viewDetails('${item.name}')">👁 View Details</button>
-              <button class="w-btn-sec btn-remove" onclick="removeFromWishlist(${item.id})">❤️ Remove</button>
+             <button class="w-btn-sec btn-view" onclick="viewDetails('${item._id}')">👁 View Details</button>
+              <button class="w-btn-sec btn-remove"
+        onclick="removeFromWishlist('${item._id}')">
+        ❤️ Remove
+</button>
             </div>
           </div>
         </div>
@@ -259,57 +282,69 @@ localStorage.getItem("snackhub_wishlist")
 
     // Update Stats Display (using dynamic dummy values derived from the list size)
     const count = wishlistItems.length;
-    const readyCount = wishlistItems.filter(i => i.inStock).length;
     const totalValue = wishlistItems.reduce((acc, curr) => acc + curr.price, 0);
+    const cart = JSON.parse(
+  localStorage.getItem("snackhub_cart") || "[]"
+);
+
+const inCartCount = wishlistItems.filter(w =>
+  cart.some(c => c.name === w.name)
+).length;
 
     heroBadge.textContent = `${count} Items Saved`;
     statCount.textContent = count;
-    statReady.textContent = readyCount;
+    statCart.textContent = inCartCount;
     statVal.textContent = `₹${totalValue}`;
   }
 
   /* ── Interactive Actions ── */
-  function addToCart(name, price) {
+  function addToCart(id, name, price) {
     // Basic LocalStorage cart integration
     const cart = JSON.parse(localStorage.getItem('snackhub_cart') || '[]');
-    const existing = cart.find(i => i.name === name);
+   const existing = cart.find(i => i.id === id);
     if (existing) {
       existing.qty = (existing.qty || 1) + 1;
     } else {
       // Create simple cart item object
-      cart.push({ name: name, price: price, qty: 1, image: "" });
+      cart.push({
+  id: id,
+  name: name,
+  price: price,
+  qty: 1
+});
     }
     localStorage.setItem('snackhub_cart', JSON.stringify(cart));
     updateCartBadge();
+    renderWishlist();  
     showToast(`🛒 Added ${name} to your cart!`);
   }
 
-  function viewDetails(name) {
-    showToast(`👁️ Opening details for ${name}...`);
-  }
+ function viewDetails(productId) {
+  window.location.href =
+    `product-detail.html?id=${productId}`;
+}
 
-  function removeFromWishlist(id) {
-    const item = wishlistItems.find(i => i.id === id);
-    if (!item) return;
-    
-    // Animate removal first
-    const cardEl = document.querySelector(`.wishlist-card[data-id="${id}"]`);
-    if (cardEl) {
-      cardEl.style.transition = 'all 0.3s';
-      cardEl.style.opacity = '0';
-      cardEl.style.transform = 'scale(0.8)';
-      
-      setTimeout(() => {
-        wishlistItems = wishlistItems.filter(i => i.id !== id);
-        renderWishlist();
-        showToast(`💔 Removed ${item.name} from wishlist.`);
-      }, 300);
-    } else {
-      wishlistItems = wishlistItems.filter(i => i.id !== id);
-      renderWishlist();
-      showToast(`💔 Removed ${item.name} from wishlist.`);
+ async function removeFromWishlist(id) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/wishlist/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Delete failed");
     }
+    wishlistItems = wishlistItems.filter(
+      item => item._id !== id
+    );
+    renderWishlist();
+    showToast("💔 Removed from wishlist");
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to remove item");
   }
+}
 
   /* ── Search Handler ── */
   function handleSearch() {
@@ -339,7 +374,7 @@ localStorage.getItem("snackhub_wishlist")
 
   /* ── Initializer ── */
   updateCartBadge();
-  renderWishlist();
+loadWishlist();
 </script>
 </body>
 </html>

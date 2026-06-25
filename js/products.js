@@ -80,6 +80,9 @@ function filterProducts() {
 
         <div class="product-footer">
           <div class="product-price">₹${p.price}</div>
+           <button class="btn btn-primary add-btn" onclick="addToWishlist('${p._id}')">
+      ❤️
+    </button>
           <button class="btn btn-primary add-btn" onclick="addToCart('${p._id}')">+ Add</button>
         </div>
       </div>
@@ -122,6 +125,52 @@ function addToCart(productId) {
 
   saveCart(cart);
   showToast(`${product.name} added to cart! 🛒`);
+}
+
+async function addToWishlist(productId) {
+  const user = JSON.parse(localStorage.getItem("snackhub_user"));
+
+  if (!user) {
+    showToast("Please login first");
+    return;
+  }
+
+  const product = PRODUCTS.find(
+    p => p._id === productId || p.id === productId
+  );
+
+  if (!product) return;
+
+  try {
+    const response = await fetch(
+      "http://localhost:5000/api/wishlist",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.image || "",
+          category: product.category
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      showToast("Added to Wishlist ❤️");
+    } else {
+      showToast(data.message || "Wishlist error");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to add to wishlist");
+  }
 }
 
 // ------------------------------

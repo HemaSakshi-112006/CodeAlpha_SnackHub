@@ -94,7 +94,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-icon">❤️</div>
-      <div class="stat-value" id="stat-wishlist">8</div>
+      <div class="stat-value" id="stat-wishlist">0</div>
       <div class="stat-label">Wishlist Items</div>
     </div>
     <div class="stat-card">
@@ -255,7 +255,6 @@ function updateProfileStats(orders) {
   });
   document.getElementById("stat-spent").textContent =
     `₹${totalSpent}`;
-  document.getElementById("stat-wishlist").textContent = "0";
 }
 
 async function loadAddressesCount() {
@@ -305,9 +304,25 @@ function renderRecentOrders(orders) {
     `;
   });
 }
+async function loadWishlistCount() {
+  const user = JSON.parse(localStorage.getItem("snackhub_user"));
+  if (!user) return;
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/wishlist/user/${user.id}`
+    );
+    const wishlist = await res.json();
+    console.log("Wishlist:", wishlist);
+console.log("Count:", wishlist.length);
+    document.getElementById("stat-wishlist").textContent = wishlist.length;
+  } catch (err) {
+    console.error("Wishlist count error:", err);
+  }
+}
   updateCartBadge();
   loadOrders();
   loadAddressesCount();
+  loadWishlistCount();
 </script>
 </body>
 </html>

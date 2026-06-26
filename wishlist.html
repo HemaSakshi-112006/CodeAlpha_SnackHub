@@ -288,26 +288,27 @@ const inCartCount = wishlistItems.filter(w =>
     `product-detail.html?id=${productId}`;
 }
 
- async function removeFromWishlist(id) {
-  try {
-    const response = await fetch(
-      `http://localhost:5000/api/wishlist/${id}`,
-      {
-        method: "DELETE"
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Delete failed");
+ async function removeFromWishlist(productId) {
+    const user = JSON.parse(localStorage.getItem("snackhub_user"));
+    try { 
+        const response = await fetch(
+            `http://localhost:5000/api/wishlist/user/${user.id}/product/${productId}`,
+            {
+                method: "DELETE"
+            }
+        );
+        if (!response.ok) {
+            throw new Error("Delete failed");
+        }
+        wishlistItems = wishlistItems.filter(
+            item => item._id !== productId
+        );
+        renderWishlist();
+        showToast("💔 Removed from wishlist");
+    } catch (err) {
+        console.error(err);
+        showToast("Failed to remove item");
     }
-    wishlistItems = wishlistItems.filter(
-      item => item._id !== id
-    );
-    renderWishlist();
-    showToast("💔 Removed from wishlist");
-  } catch (err) {
-    console.error(err);
-    showToast("Failed to remove item");
-  }
 }
 
   /* ── Search Handler ── */

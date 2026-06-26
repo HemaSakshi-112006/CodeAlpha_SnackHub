@@ -2,6 +2,7 @@
 // PRODUCTS (NOW FROM BACKEND)
 // ------------------------------
 let PRODUCTS = [];
+let wishlistIds = [];
 let activeFilter = 'All'; // single source of truth — lives here in products.js
 
 // Called by filter buttons in products.html via onclick="setFilter(...)"
@@ -29,6 +30,20 @@ async function loadProducts() {
   } catch (err) {
     console.log(err);
   }
+}
+async function loadWishlistIds() {
+    const user = JSON.parse(localStorage.getItem("snackhub_user"));
+    if (!user) return;
+    try {
+        const res = await fetch(
+            `http://localhost:5000/api/wishlist/user/${user.id}`
+        );
+        const wishlist = await res.json();
+        wishlistIds = wishlist.map(product => product._id)
+        console.log("Wishlist IDs:", wishlistIds);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 function filterProducts() {
@@ -79,11 +94,9 @@ function filterProducts() {
         </div>
 
         <div class="product-footer">
-          <div class="product-price">₹${p.price}</div>
-           <button class="btn btn-primary add-btn" onclick="addToWishlist('${p._id}')">
-      ❤️
-    </button>
-          <button class="btn btn-primary add-btn" onclick="addToCart('${p._id}')">+ Add</button>
+      <div class="product-price">₹${p.price}</div>
+       <button class="btn btn-primary add-btn" onclick="toggleWishlist('${p._id}')">  ${wishlistIds.includes(p._id) ? "❤️" : "🤍"}</button>
+      <button class="btn btn-primary add-btn" onclick="addToCart('${p._id}')">+ Add</button>
         </div>
       </div>
     `;
@@ -129,18 +142,14 @@ function addToCart(productId) {
 
 async function addToWishlist(productId) {
   const user = JSON.parse(localStorage.getItem("snackhub_user"));
-
   if (!user) {
     showToast("Please login first");
     return;
   }
-
   const product = PRODUCTS.find(
     p => p._id === productId || p.id === productId
   );
-
   if (!product) return;
-
   try {
     const response = await fetch(
       "http://localhost:5000/api/wishlist",
@@ -159,9 +168,7 @@ async function addToWishlist(productId) {
         })
       }
     );
-
     const data = await response.json();
-
     if (response.ok) {
       showToast("Added to Wishlist ❤️");
     } else {
@@ -172,7 +179,46 @@ async function addToWishlist(productId) {
     showToast("Failed to add to wishlist");
   }
 }
-
+async function toggleWishlist(productId) {
+  console.log("toggleWishlist called:", productId);
+  const user = JSON.parse(localStorage.getItem("snackhub_user"));
+    if (!user) {
+        showToast("Please login first.");
+        return;
+    }
+    try {
+        if (wishlistIds.includes(productId)) {
+            await fetch(
+                `http://localhost:5000/api/wishlist/user/${user.id}/product/${productId}`,
+                {
+                    method: "DELETE"
+                }
+            );
+            wishlistIds = wishlistIds.filter(id => id !== productId);
+            showToast("Removed from Wishlist ❤️");
+        } else {
+            await fetch(
+                "http://localhost:5000/api/wishlist",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        userId: user.id,
+                        productId: productId
+                    })
+                }
+            );
+            wishlistIds.push(productId);
+            showToast("Added to Wishlist ❤️");
+        }
+        filterProducts();
+    } catch (err) {
+        console.log(err);
+        showToast("Something went wrong.");
+    }
+}
 // ------------------------------
 // CART BADGE
 // ------------------------------
@@ -269,5 +315,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.value = params.get('q');
   }
 
-  loadProducts();
+  (async () => {
+    await loadWishlistIds();
+    await loadProducts();
+})();
+
 });

@@ -57,7 +57,21 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
+router.delete("/user/:userId/product/:productId", async (req, res) => {
+  try {
 
+    await Wishlist.findOneAndDelete({
+      userId: req.params.userId,
+      productId: req.params.productId
+    });
+
+    res.json({ message: "Removed from wishlist" });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // -------------------------
 // DELETE FROM WISHLIST
 // -------------------------
